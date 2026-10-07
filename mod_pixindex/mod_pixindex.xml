@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="module" client="site" method="upgrade">
+	<name>mod_pixindex</name>
+	<author>Gianluca Gabella</author>
+	<creationDate>2026-10</creationDate>
+	<copyright>(C) 2026 Gianluca Gabella</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE</license>
+	<authorEmail>g.gabella@gmail.com</authorEmail>
+	<authorUrl>https://github.com/PixedBo/PixIndex</authorUrl>
+	<version>1.0.0</version>
+	<description>MOD_PIXINDEX_XML_DESCRIPTION</description>
+	<namespace path="src">Pixed\Module\Pixindex</namespace>
+
+	<files>
+		<folder module="mod_pixindex">services</folder>
+		<folder>language</folder>
+		<folder>src</folder>
+		<folder>tmpl</folder>
+	</files>
+
+	<media destination="mod_pixindex" folder="media">
+		<filename>joomla.asset.json</filename>
+		<folder>css</folder>
+		<folder>js</folder>
+	</media>
+
+	<config>
+		<fields name="params">
+			<!-- Module: general look and which heading levels are listed -->
+			<fieldset name="basic">
+				<field name="intro_basic" type="note" description="MOD_PIXINDEX_INTRO_BASIC" class="alert alert-info w-100"/>
+
+				<field name="framework" type="list" label="MOD_PIXINDEX_FIELD_FRAMEWORK_LABEL" description="MOD_PIXINDEX_FIELD_FRAMEWORK_DESC" default="bootstrap5" validate="options">
+					<option value="bootstrap5">MOD_PIXINDEX_OPTION_BOOTSTRAP5</option>
+					<option value="uikit3">MOD_PIXINDEX_OPTION_UIKIT3</option>
+					<option value="none">MOD_PIXINDEX_OPTION_NONE</option>
+				</field>
+
+				<field name="display" type="list" label="MOD_PIXINDEX_FIELD_DISPLAY_LABEL" description="MOD_PIXINDEX_FIELD_DISPLAY_DESC" default="card" validate="options">
+					<option value="card">MOD_PIXINDEX_OPTION_DISPLAY_CARD</option>
+					<option value="list">MOD_PIXINDEX_OPTION_DISPLAY_LIST</option>
+					<option value="nav">MOD_PIXINDEX_OPTION_DISPLAY_NAV</option>
+				</field>
+
+				<field name="appearance" type="list" label="MOD_PIXINDEX_FIELD_APPEARANCE_LABEL" description="MOD_PIXINDEX_FIELD_APPEARANCE_DESC" default="glass" validate="options">
+					<option value="glass">MOD_PIXINDEX_OPTION_APPEARANCE_GLASS</option>
+					<option value="theme">MOD_PIXINDEX_OPTION_APPEARANCE_THEME</option>
+				</field>
+
+				<field name="collapsible" type="list" label="MOD_PIXINDEX_FIELD_COLLAPSIBLE_LABEL" description="MOD_PIXINDEX_FIELD_COLLAPSIBLE_DESC" default="no" validate="options">
+					<option value="no">JNO</option>
+					<option value="expanded">MOD_PIXINDEX_OPTION_COLLAPSIBLE_EXPANDED</option>
+					<option value="collapsed">MOD_PIXINDEX_OPTION_COLLAPSIBLE_COLLAPSED</option>
+					<option value="mobile">MOD_PIXINDEX_OPTION_COLLAPSIBLE_MOBILE</option>
+				</field>
+
+				<field name="show_title" type="radio" label="MOD_PIXINDEX_FIELD_SHOW_TITLE_LABEL" description="MOD_PIXINDEX_FIELD_SHOW_TITLE_DESC" layout="joomla.form.field.radio.switcher" default="1" filter="integer">
+					<option value="0">JHIDE</option>
+					<option value="1">JSHOW</option>
+				</field>
+
+				<field name="title" type="text" label="MOD_PIXINDEX_FIELD_TITLE_LABEL" description="MOD_PIXINDEX_FIELD_TITLE_DESC" default="MOD_PIXINDEX_INDEX_TITLE"/>
+
+				<field name="title_tag" type="list" label="MOD_PIXINDEX_FIELD_TITLE_TAG_LABEL" description="MOD_PIXINDEX_FIELD_TITLE_TAG_DESC" default="h3" validate="options">
+					<option value="h1">h1</option>
+					<option value="h2">h2</option>
+					<option value="h3">h3</option>
+					<option value="h4">h4</option>
+					<option value="h5">h5</option>
+					<option value="h6">h6</option>
+					<option value="p">p</option>
+					<option value="div">div</option>
+				</field>
+
+				<field name="index_min" type="list" label="MOD_PIXINDEX_FIELD_INDEX_MIN_LABEL" description="MOD_PIXINDEX_FIELD_INDEX_MIN_DESC" default="2" filter="integer" validate="options">
+					<option value="1">h1</option>
+					<option value="2">h2</option>
+					<option value="3">h3</option>
+					<option value="4">h4</option>
+					<option value="5">h5</option>
+					<option value="6">h6</option>
+				</field>
+
+				<field name="index_max" type="list" label="MOD_PIXINDEX_FIELD_INDEX_MAX_LABEL" description="MOD_PIXINDEX_FIELD_INDEX_MAX_DESC" default="6" filter="integer" validate="options">
+					<option value="1">h1</option>
+					<option value="2">h2</option>
+					<option value="3">h3</option>
+					<option value="4">h4</option>
+					<option value="5">h5</option>
+					<option value="6">h6</option>
+				</field>
+
+				<field name="exclude_levels" type="checkboxes" label="MOD_PIXINDEX_FIELD_EXCLUDE_LEVELS_LABEL" description="MOD_PIXINDEX_FIELD_EXCLUDE_LEVELS_DESC">
+					<option value="1">h1</option>
+					<option value="2">h2</option>
+					<option value="3">h3</option>
+					<option value="4">h4</option>
+					<option value="5">h5</option>
+					<option value="6">h6</option>
+				</field>
+
+				<field name="min_headings" type="number" label="MOD_PIXINDEX_FIELD_MIN_HEADINGS_LABEL" description="MOD_PIXINDEX_FIELD_MIN_HEADINGS_DESC" default="1" min="1" filter="integer"/>
+			</fieldset>
+
+			<!-- List: how the entries look -->
+			<fieldset name="lists" label="MOD_PIXINDEX_FIELDSET_LISTS">
+				<field name="intro_lists" type="note" description="MOD_PIXINDEX_INTRO_LISTS" class="alert alert-info w-100"/>
+
+				<field name="ordered" type="list" label="MOD_PIXINDEX_FIELD_ORDERED_LABEL" description="MOD_PIXINDEX_FIELD_ORDERED_DESC" default="yes" validate="options">
+					<option value="yes">MOD_PIXINDEX_OPTION_ORDERED_YES</option>
+					<option value="no">MOD_PIXINDEX_OPTION_ORDERED_NO</option>
+					<option value="custom">MOD_PIXINDEX_OPTION_ORDERED_CUSTOM</option>
+				</field>
+
+				<field name="ordered_style" type="list" label="MOD_PIXINDEX_FIELD_ORDERED_STYLE_LABEL" description="MOD_PIXINDEX_FIELD_ORDERED_STYLE_DESC" default="1" showon="ordered:yes" validate="options">
+					<option value="1">MOD_PIXINDEX_OPTION_STYLE_NUMBERS</option>
+					<option value="A">MOD_PIXINDEX_OPTION_STYLE_LETTERS</option>
+					<option value="a">MOD_PIXINDEX_OPTION_STYLE_LETTERS_LOWERCASE</option>
+					<option value="I">MOD_PIXINDEX_OPTION_STYLE_ROMAN</option>
+					<option value="i">MOD_PIXINDEX_OPTION_STYLE_ROMAN_LOWERCASE</option>
+				</field>
+
+				<field name="ordered_1" type="radio" label="MOD_PIXINDEX_FIELD_ORDERED_1_LABEL" layout="joomla.form.field.radio.switcher" default="1" filter="integer" showon="ordered:custom">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="ordered_style_1" type="list" label="MOD_PIXINDEX_FIELD_ORDERED_STYLE_1_LABEL" default="1" showon="ordered:custom[AND]ordered_1:1" validate="options">
+					<option value="1">MOD_PIXINDEX_OPTION_STYLE_NUMBERS</option>
+					<option value="A">MOD_PIXINDEX_OPTION_STYLE_LETTERS</option>
+					<option value="a">MOD_PIXINDEX_OPTION_STYLE_LETTERS_LOWERCASE</option>
+					<option value="I">MOD_PIXINDEX_OPTION_STYLE_ROMAN</option>
+					<option value="i">MOD_PIXINDEX_OPTION_STYLE_ROMAN_LOWERCASE</option>
+				</field>
+
+				<field name="ordered_2" type="radio" label="MOD_PIXINDEX_FIELD_ORDERED_2_LABEL" layout="joomla.form.field.radio.switcher" default="1" filter="integer" showon="ordered:custom">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="ordered_style_2" type="list" label="MOD_PIXINDEX_FIELD_ORDERED_STYLE_2_LABEL" default="1" showon="ordered:custom[AND]ordered_2:1" validate="options">
+					<option value="1">MOD_PIXINDEX_OPTION_STYLE_NUMBERS</option>
+					<option value="A">MOD_PIXINDEX_OPTION_STYLE_LETTERS</option>
+					<option value="a">MOD_PIXINDEX_OPTION_STYLE_LETTERS_LOWERCASE</option>
+					<option value="I">MOD_PIXINDEX_OPTION_STYLE_ROMAN</option>
+					<option value="i">MOD_PIXINDEX_OPTION_STYLE_ROMAN_LOWERCASE</option>
+				</field>
+
+				<field name="ordered_3" type="radio" label="MOD_PIXINDEX_FIELD_ORDERED_3_LABEL" layout="joomla.form.field.radio.switcher" default="1" filter="integer" showon="ordered:custom">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="ordered_style_3" type="list" label="MOD_PIXINDEX_FIELD_ORDERED_STYLE_3_LABEL" default="1" showon="ordered:custom[AND]ordered_3:1" validate="options">
+					<option value="1">MOD_PIXINDEX_OPTION_STYLE_NUMBERS</option>
+					<option value="A">MOD_PIXINDEX_OPTION_STYLE_LETTERS</option>
+					<option value="a">MOD_PIXINDEX_OPTION_STYLE_LETTERS_LOWERCASE</option>
+					<option value="I">MOD_PIXINDEX_OPTION_STYLE_ROMAN</option>
+					<option value="i">MOD_PIXINDEX_OPTION_STYLE_ROMAN_LOWERCASE</option>
+				</field>
+
+				<field name="ordered_4" type="radio" label="MOD_PIXINDEX_FIELD_ORDERED_4_LABEL" layout="joomla.form.field.radio.switcher" default="1" filter="integer" showon="ordered:custom">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="ordered_style_4" type="list" label="MOD_PIXINDEX_FIELD_ORDERED_STYLE_4_LABEL" default="1" showon="ordered:custom[AND]ordered_4:1" validate="options">
+					<option value="1">MOD_PIXINDEX_OPTION_STYLE_NUMBERS</option>
+					<option value="A">MOD_PIXINDEX_OPTION_STYLE_LETTERS</option>
+					<option value="a">MOD_PIXINDEX_OPTION_STYLE_LETTERS_LOWERCASE</option>
+					<option value="I">MOD_PIXINDEX_OPTION_STYLE_ROMAN</option>
+					<option value="i">MOD_PIXINDEX_OPTION_STYLE_ROMAN_LOWERCASE</option>
+				</field>
+
+				<field name="ordered_5" type="radio" label="MOD_PIXINDEX_FIELD_ORDERED_5_LABEL" layout="joomla.form.field.radio.switcher" default="1" filter="integer" showon="ordered:custom">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="ordered_style_5" type="list" label="MOD_PIXINDEX_FIELD_ORDERED_STYLE_5_LABEL" default="1" showon="ordered:custom[AND]ordered_5:1" validate="options">
+					<option value="1">MOD_PIXINDEX_OPTION_STYLE_NUMBERS</option>
+					<option value="A">MOD_PIXINDEX_OPTION_STYLE_LETTERS</option>
+					<option value="a">MOD_PIXINDEX_OPTION_STYLE_LETTERS_LOWERCASE</option>
+					<option value="I">MOD_PIXINDEX_OPTION_STYLE_ROMAN</option>
+					<option value="i">MOD_PIXINDEX_OPTION_STYLE_ROMAN_LOWERCASE</option>
+				</field>
+
+				<field name="ordered_6" type="radio" label="MOD_PIXINDEX_FIELD_ORDERED_6_LABEL" layout="joomla.form.field.radio.switcher" default="1" filter="integer" showon="ordered:custom">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="ordered_style_6" type="list" label="MOD_PIXINDEX_FIELD_ORDERED_STYLE_6_LABEL" default="1" showon="ordered:custom[AND]ordered_6:1" validate="options">
+					<option value="1">MOD_PIXINDEX_OPTION_STYLE_NUMBERS</option>
+					<option value="A">MOD_PIXINDEX_OPTION_STYLE_LETTERS</option>
+					<option value="a">MOD_PIXINDEX_OPTION_STYLE_LETTERS_LOWERCASE</option>
+					<option value="I">MOD_PIXINDEX_OPTION_STYLE_ROMAN</option>
+					<option value="i">MOD_PIXINDEX_OPTION_STYLE_ROMAN_LOWERCASE</option>
+				</field>
+
+				<field name="index_numbering" type="list" label="MOD_PIXINDEX_FIELD_INDEX_NUMBERING_LABEL" description="MOD_PIXINDEX_FIELD_INDEX_NUMBERING_DESC" default="markers" showon="ordered!:no" validate="options">
+					<option value="markers">MOD_PIXINDEX_OPTION_NUMBERING_MARKERS</option>
+					<option value="hierarchical">MOD_PIXINDEX_OPTION_NUMBERING_HIERARCHICAL</option>
+				</field>
+
+				<field name="number_separator" type="text" label="MOD_PIXINDEX_FIELD_NUMBER_SEPARATOR_LABEL" description="MOD_PIXINDEX_FIELD_NUMBER_SEPARATOR_DESC" default="." filter="raw" showon="ordered!:no"/>
+
+				<field name="list_bullets" type="radio" label="MOD_PIXINDEX_FIELD_LIST_BULLETS_LABEL" description="MOD_PIXINDEX_FIELD_LIST_BULLETS_DESC" layout="joomla.form.field.radio.switcher" default="1" filter="integer" showon="ordered!:yes">
+					<option value="0">JHIDE</option>
+					<option value="1">JSHOW</option>
+				</field>
+
+				<field name="truncate_length" type="number" label="MOD_PIXINDEX_FIELD_TRUNCATE_LENGTH_LABEL" description="MOD_PIXINDEX_FIELD_TRUNCATE_LENGTH_DESC" default="0" min="0" filter="integer"/>
+
+				<field name="truncate_whole_words" type="radio" label="MOD_PIXINDEX_FIELD_TRUNCATE_WHOLE_WORDS_LABEL" description="MOD_PIXINDEX_FIELD_TRUNCATE_WHOLE_WORDS_DESC" layout="joomla.form.field.radio.switcher" default="1" filter="integer" showon="truncate_length!:0">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="remove_html" type="radio" label="MOD_PIXINDEX_FIELD_REMOVE_HTML_LABEL" description="MOD_PIXINDEX_FIELD_REMOVE_HTML_DESC" layout="joomla.form.field.radio.switcher" default="1" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="sanitize_titles" type="list" label="MOD_PIXINDEX_FIELD_SANITIZE_TITLES_LABEL" description="MOD_PIXINDEX_FIELD_SANITIZE_TITLES_DESC" default="emoji" validate="options">
+					<option value="none">JNO</option>
+					<option value="emoji">MOD_PIXINDEX_OPTION_SANITIZE_EMOJI</option>
+					<option value="strict">MOD_PIXINDEX_OPTION_SANITIZE_STRICT</option>
+				</field>
+			</fieldset>
+
+			<!-- Behaviour: what happens while reading and scrolling -->
+			<fieldset name="behaviour" label="MOD_PIXINDEX_FIELDSET_BEHAVIOUR">
+				<field name="intro_behaviour" type="note" description="MOD_PIXINDEX_INTRO_BEHAVIOUR" class="alert alert-info w-100"/>
+
+				<field name="smooth_scroll" type="radio" label="MOD_PIXINDEX_FIELD_SMOOTH_SCROLL_LABEL" description="MOD_PIXINDEX_FIELD_SMOOTH_SCROLL_DESC" layout="joomla.form.field.radio.switcher" default="1" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="scroll_offset" type="number" label="MOD_PIXINDEX_FIELD_SCROLL_OFFSET_LABEL" description="MOD_PIXINDEX_FIELD_SCROLL_OFFSET_DESC" default="0" min="0" filter="integer"/>
+
+				<field name="scrollspy" type="radio" label="MOD_PIXINDEX_FIELD_SCROLLSPY_LABEL" description="MOD_PIXINDEX_FIELD_SCROLLSPY_DESC" layout="joomla.form.field.radio.switcher" default="1" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="active_style" type="list" label="MOD_PIXINDEX_FIELD_ACTIVE_STYLE_LABEL" description="MOD_PIXINDEX_FIELD_ACTIVE_STYLE_DESC" default="auto" showon="scrollspy:1" validate="options">
+					<option value="auto">MOD_PIXINDEX_OPTION_ACTIVE_AUTO</option>
+					<option value="highlight">MOD_PIXINDEX_OPTION_ACTIVE_HIGHLIGHT</option>
+					<option value="underline">MOD_PIXINDEX_OPTION_ACTIVE_UNDERLINE</option>
+					<option value="bold">MOD_PIXINDEX_OPTION_ACTIVE_BOLD</option>
+					<option value="line">MOD_PIXINDEX_OPTION_ACTIVE_LINE</option>
+					<option value="none">MOD_PIXINDEX_OPTION_ACTIVE_NONE</option>
+				</field>
+
+				<field name="collapse_sublevels" type="radio" label="MOD_PIXINDEX_FIELD_COLLAPSE_SUBLEVELS_LABEL" description="MOD_PIXINDEX_FIELD_COLLAPSE_SUBLEVELS_DESC" layout="joomla.form.field.radio.switcher" default="0" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="sticky" type="radio" label="MOD_PIXINDEX_FIELD_STICKY_LABEL" description="MOD_PIXINDEX_FIELD_STICKY_DESC" layout="joomla.form.field.radio.switcher" default="0" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="sticky_top" type="number" label="MOD_PIXINDEX_FIELD_STICKY_TOP_LABEL" description="MOD_PIXINDEX_FIELD_STICKY_TOP_DESC" default="20" min="0" filter="integer" showon="sticky:1"/>
+
+				<field name="max_height" type="number" label="MOD_PIXINDEX_FIELD_MAX_HEIGHT_LABEL" description="MOD_PIXINDEX_FIELD_MAX_HEIGHT_DESC" default="0" min="0" filter="integer"/>
+
+				<field name="mobile_panel" type="radio" label="MOD_PIXINDEX_FIELD_MOBILE_PANEL_LABEL" description="MOD_PIXINDEX_FIELD_MOBILE_PANEL_DESC" layout="joomla.form.field.radio.switcher" default="0" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="mobile_panel_side" type="list" label="MOD_PIXINDEX_FIELD_MOBILE_PANEL_SIDE_LABEL" description="MOD_PIXINDEX_FIELD_MOBILE_PANEL_SIDE_DESC" default="end" showon="mobile_panel:1" validate="options">
+					<option value="end">MOD_PIXINDEX_OPTION_SIDE_END</option>
+					<option value="start">MOD_PIXINDEX_OPTION_SIDE_START</option>
+				</field>
+
+				<field name="mobile_breakpoint" type="number" label="MOD_PIXINDEX_FIELD_MOBILE_BREAKPOINT_LABEL" description="MOD_PIXINDEX_FIELD_MOBILE_BREAKPOINT_DESC" default="960" min="0" filter="integer"/>
+
+				<field name="back_link" type="radio" label="MOD_PIXINDEX_FIELD_BACK_LINK_LABEL" description="MOD_PIXINDEX_FIELD_BACK_LINK_DESC" layout="joomla.form.field.radio.switcher" default="0" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="back_link_text" type="text" label="MOD_PIXINDEX_FIELD_BACK_LINK_TEXT_LABEL" description="MOD_PIXINDEX_FIELD_BACK_LINK_TEXT_DESC" default="MOD_PIXINDEX_BACK_TO_INDEX" showon="back_link:1"/>
+			</fieldset>
+
+			<!-- Section links: the ids written to the headings -->
+			<fieldset name="ids" label="MOD_PIXINDEX_FIELDSET_IDS">
+				<field name="intro_ids" type="note" description="MOD_PIXINDEX_INTRO_IDS" class="alert alert-info w-100"/>
+
+				<field name="id_number" type="radio" label="MOD_PIXINDEX_FIELD_ID_NUMBER_LABEL" description="MOD_PIXINDEX_FIELD_ID_NUMBER_DESC" layout="joomla.form.field.radio.switcher" default="0" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="id_parents" type="radio" label="MOD_PIXINDEX_FIELD_ID_PARENTS_LABEL" description="MOD_PIXINDEX_FIELD_ID_PARENTS_DESC" layout="joomla.form.field.radio.switcher" default="0" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="id_prefix" type="text" label="MOD_PIXINDEX_FIELD_ID_PREFIX_LABEL" description="MOD_PIXINDEX_FIELD_ID_PREFIX_DESC" default=""/>
+
+				<field name="id_numeric_prefix" type="text" label="MOD_PIXINDEX_FIELD_ID_NUMERIC_PREFIX_LABEL" description="MOD_PIXINDEX_FIELD_ID_NUMERIC_PREFIX_DESC" default="h-"/>
+
+				<field name="id_remove_words" type="textarea" label="MOD_PIXINDEX_FIELD_ID_REMOVE_WORDS_LABEL" description="MOD_PIXINDEX_FIELD_ID_REMOVE_WORDS_DESC" rows="2"/>
+			</fieldset>
+
+			<!-- Filters: which headings and which pages -->
+			<fieldset name="filters" label="MOD_PIXINDEX_FIELDSET_FILTERS">
+				<field name="intro_filters" type="note" description="MOD_PIXINDEX_INTRO_FILTERS" class="alert alert-info w-100"/>
+
+				<field name="content_containers" type="text" label="MOD_PIXINDEX_FIELD_CONTENT_CONTAINERS_LABEL" description="MOD_PIXINDEX_FIELD_CONTENT_CONTAINERS_DESC" default=".com-content-article__body"/>
+
+				<field name="noindex_classes" type="text" label="MOD_PIXINDEX_FIELD_NOINDEX_CLASSES_LABEL" description="MOD_PIXINDEX_FIELD_NOINDEX_CLASSES_DESC" default="noindex, pixindex-skip, uk-article-title"/>
+
+				<field name="noindex_attributes" type="text" label="MOD_PIXINDEX_FIELD_NOINDEX_ATTRIBUTES_LABEL" description="MOD_PIXINDEX_FIELD_NOINDEX_ATTRIBUTES_DESC" default="itemprop=&quot;headline&quot;, property=&quot;headline&quot;" filter="raw"/>
+
+				<field name="noindex_containers" type="text" label="MOD_PIXINDEX_FIELD_NOINDEX_CONTAINERS_LABEL" description="MOD_PIXINDEX_FIELD_NOINDEX_CONTAINERS_DESC" default=".page-header"/>
+
+				<field name="title_classes" type="text" label="MOD_PIXINDEX_FIELD_TITLE_CLASSES_LABEL" description="MOD_PIXINDEX_FIELD_TITLE_CLASSES_DESC"/>
+
+				<field name="pages_note" type="note" label="MOD_PIXINDEX_FIELD_PAGES_NOTE_LABEL" description="MOD_PIXINDEX_FIELD_PAGES_NOTE_DESC"/>
+
+				<field name="components_mode" type="list" label="MOD_PIXINDEX_FIELD_COMPONENTS_MODE_LABEL" description="MOD_PIXINDEX_FIELD_COMPONENTS_MODE_DESC" default="all" validate="options">
+					<option value="all">MOD_PIXINDEX_OPTION_COMPONENTS_ALL</option>
+					<option value="include">MOD_PIXINDEX_OPTION_COMPONENTS_INCLUDE</option>
+					<option value="exclude">MOD_PIXINDEX_OPTION_COMPONENTS_EXCLUDE</option>
+				</field>
+
+				<field name="components" type="components" label="MOD_PIXINDEX_FIELD_COMPONENTS_LABEL" multiple="true" layout="joomla.form.field.list-fancy-select" showon="components_mode!:all"/>
+
+				<field name="categories_mode" type="list" label="MOD_PIXINDEX_FIELD_CATEGORIES_MODE_LABEL" description="MOD_PIXINDEX_FIELD_CATEGORIES_MODE_DESC" default="ignore" validate="options">
+					<option value="ignore">MOD_PIXINDEX_OPTION_CATEGORIES_ALL</option>
+					<option value="include">MOD_PIXINDEX_OPTION_CATEGORIES_INCLUDE</option>
+					<option value="exclude">MOD_PIXINDEX_OPTION_CATEGORIES_EXCLUDE</option>
+				</field>
+
+				<field name="categories" type="category" label="MOD_PIXINDEX_FIELD_CATEGORIES_LABEL" extension="com_content" multiple="true" layout="joomla.form.field.list-fancy-select" filter="intarray" showon="categories_mode!:ignore"/>
+
+				<field name="categories_children" type="list" label="MOD_PIXINDEX_FIELD_CATEGORIES_CHILDREN_LABEL" description="MOD_PIXINDEX_FIELD_CATEGORIES_CHILDREN_DESC" default="no" showon="categories_mode!:ignore" validate="options">
+					<option value="no">JNO</option>
+					<option value="yes">JYES</option>
+					<option value="only">MOD_PIXINDEX_OPTION_ONLY_CHILDREN</option>
+				</field>
+
+				<field name="syntax_note" type="note" label="MOD_PIXINDEX_FIELD_SYNTAX_NOTE_LABEL" description="MOD_PIXINDEX_FIELD_SYNTAX_NOTE_DESC"/>
+
+				<field name="tag_word" type="text" label="MOD_PIXINDEX_FIELD_TAG_WORD_LABEL" description="MOD_PIXINDEX_FIELD_TAG_WORD_DESC" default="pixindex" filter="cmd"/>
+
+				<field name="noindex_word" type="text" label="MOD_PIXINDEX_FIELD_NOINDEX_WORD_LABEL" description="MOD_PIXINDEX_FIELD_NOINDEX_WORD_DESC" default="pixindex-skip" filter="cmd"/>
+
+				<field name="tag_characters" type="list" label="MOD_PIXINDEX_FIELD_TAG_CHARACTERS_LABEL" description="MOD_PIXINDEX_FIELD_TAG_CHARACTERS_DESC" default="braces" validate="options">
+					<option value="braces">{...}</option>
+					<option value="brackets">[...]</option>
+					<option value="guillemets">«...»</option>
+					<option value="double_braces">{{...}}</option>
+					<option value="double_brackets">[[...]]</option>
+					<option value="colon_brackets">[:...:]</option>
+					<option value="percent_brackets">[%...%]</option>
+				</field>
+			</fieldset>
+
+			<!-- CSS classes: for advanced users -->
+			<fieldset name="styling" label="MOD_PIXINDEX_FIELDSET_STYLING">
+				<field name="intro_styling" type="note" description="MOD_PIXINDEX_INTRO_STYLING" class="alert alert-info w-100"/>
+
+				<field name="class_container" type="text" label="MOD_PIXINDEX_FIELD_CLASS_CONTAINER_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_CONTAINER_DESC"/>
+				<field name="class_title" type="text" label="MOD_PIXINDEX_FIELD_CLASS_TITLE_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_TITLE_DESC"/>
+				<field name="class_body" type="text" label="MOD_PIXINDEX_FIELD_CLASS_BODY_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_BODY_DESC"/>
+				<field name="class_list" type="text" label="MOD_PIXINDEX_FIELD_CLASS_LIST_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_LIST_DESC"/>
+				<field name="class_sublist" type="text" label="MOD_PIXINDEX_FIELD_CLASS_SUBLIST_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_SUBLIST_DESC"/>
+				<field name="class_item" type="text" label="MOD_PIXINDEX_FIELD_CLASS_ITEM_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_ITEM_DESC"/>
+				<field name="class_link" type="text" label="MOD_PIXINDEX_FIELD_CLASS_LINK_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_LINK_DESC"/>
+				<field name="class_list_title" type="text" label="MOD_PIXINDEX_FIELD_CLASS_LIST_TITLE_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_LIST_TITLE_DESC"/>
+				<field name="class_heading" type="text" label="MOD_PIXINDEX_FIELD_CLASS_HEADING_LABEL" description="MOD_PIXINDEX_FIELD_CLASS_HEADING_DESC"/>
+
+				<field name="load_css" type="radio" label="MOD_PIXINDEX_FIELD_LOAD_CSS_LABEL" description="MOD_PIXINDEX_FIELD_LOAD_CSS_DESC" layout="joomla.form.field.radio.switcher" default="1" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="html_comments" type="radio" label="MOD_PIXINDEX_FIELD_HTML_COMMENTS_LABEL" description="MOD_PIXINDEX_FIELD_HTML_COMMENTS_DESC" layout="joomla.form.field.radio.switcher" default="1" filter="integer">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			</fieldset>
+
+			<fieldset name="advanced">
+				<field name="intro_advanced" type="note" description="MOD_PIXINDEX_INTRO_ADVANCED" class="alert alert-info w-100"/>
+
+				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" class="form-select" validate="moduleLayout"/>
+
+				<field name="moduleclass_sfx" type="textarea" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" rows="3" validate="CssIdentifier"/>
+
+				<!-- The index depends on the current page: module caching is always disabled. -->
+				<field name="cache" type="hidden" default="0" filter="integer"/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

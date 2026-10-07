@@ -1,0 +1,12 @@
+# Local AI assistant instructions
+CLAUDE.md
+
+# Build output
+dist/
+*.zip
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

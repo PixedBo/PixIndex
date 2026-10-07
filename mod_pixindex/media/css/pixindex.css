@@ -1,0 +1,521 @@
+/**
+ * PixIndex - table of contents module for Joomla
+ *
+ * Fonts and colors always come from the template: this file never sets a font
+ * and only derives colors from currentColor, the theme text color (read by the
+ * script into --pixindex-text) or the system colors.
+ *
+ * - Cosmetic rules are wrapped in :where() (zero specificity): any template or
+ *   custom rule wins without !important.
+ * - Functional rules (list markers, current section, hidden states, sticky,
+ *   panel) keep a low specificity, just enough to beat the framework resets.
+ * - Sizes and colors can be changed with custom properties (on :root or .pixindex):
+ *   --pixindex-indent, --pixindex-item-gap, --pixindex-active-weight,
+ *   --pixindex-active-bg, --pixindex-active-bar, --pixindex-active-thickness,
+ *   --pixindex-hover-bg, --pixindex-glass-bg, --pixindex-glass-border,
+ *   --pixindex-glass-blur, --pixindex-glass-shadow, --pixindex-border-color,
+ *   --pixindex-radius, --pixindex-padding, --pixindex-duration,
+ *   --pixindex-sticky-top, --pixindex-max-height, --pixindex-panel-width,
+ *   --pixindex-panel-bg, --pixindex-panel-color, --pixindex-fab-offset,
+ *   --pixindex-backdrop.
+ *
+ * @copyright  (C) 2026 Gianluca Gabella
+ * @license    GNU General Public License version 2 or later; see LICENSE
+ */
+
+/* ------------------------------------------------------------------ Lists */
+
+:where(.pixindex) :where(.pixindex-list) {
+  margin-block: 0;
+}
+
+:where(.pixindex .pixindex-list) :where(.pixindex-list) {
+  margin-block-start: var(--pixindex-item-gap, .2em);
+}
+
+:where(.pixindex) :where(.pixindex-item + .pixindex-item) {
+  margin-block-start: var(--pixindex-item-gap, .2em);
+}
+
+/* Markers: functional, they must beat the uk-list / .nav resets. */
+.pixindex .pixindex-list--none {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.pixindex .pixindex-list .pixindex-list--none {
+  padding-inline-start: var(--pixindex-indent, 1.25rem);
+}
+
+.pixindex .pixindex-list--disc {
+  list-style: disc;
+  padding-inline-start: var(--pixindex-indent, 1.25rem);
+}
+
+.pixindex .pixindex-list--decimal,
+.pixindex .pixindex-list--lower-alpha,
+.pixindex .pixindex-list--upper-alpha,
+.pixindex .pixindex-list--lower-roman,
+.pixindex .pixindex-list--upper-roman {
+  padding-inline-start: calc(var(--pixindex-indent, 1.25rem) + .5rem);
+}
+
+.pixindex .pixindex-list--decimal { list-style-type: decimal; }
+.pixindex .pixindex-list--lower-alpha { list-style-type: lower-alpha; }
+.pixindex .pixindex-list--upper-alpha { list-style-type: upper-alpha; }
+.pixindex .pixindex-list--lower-roman { list-style-type: lower-roman; }
+.pixindex .pixindex-list--upper-roman { list-style-type: upper-roman; }
+
+:where(.pixindex) :where(.pixindex-index-number) {
+  font-variant-numeric: tabular-nums;
+}
+
+:where(.pixindex) :where(.pixindex-item-title) {
+  display: block;
+  font-weight: var(--pixindex-active-weight, 600);
+}
+
+/* ------------------------------------------------------- Current section */
+
+/*
+ * The current section must stay visible whatever the template does with links,
+ * so these rules are functional (not wrapped in :where()).
+ */
+.pixindex.pixindex--active-underline .pixindex-link.pixindex-active {
+  text-decoration: underline;
+  text-decoration-thickness: var(--pixindex-active-thickness, .1em);
+  text-underline-offset: .25em;
+}
+
+.pixindex.pixindex--active-bold .pixindex-link.pixindex-active {
+  font-weight: var(--pixindex-active-weight, 700);
+}
+
+.pixindex.pixindex--active-line .pixindex-link {
+  border-inline-start: var(--pixindex-active-thickness, .2em) solid transparent;
+  padding-inline-start: .5em;
+}
+
+.pixindex.pixindex--active-line .pixindex-link.pixindex-active {
+  border-inline-start-color: currentColor;
+}
+
+/*
+ * Highlight and glass: every entry is a rounded row. The current row gets a
+ * background tinted with the theme text color (lighter on dark themes, darker
+ * on light ones) and a bar in the link color on the leading side.
+ */
+.pixindex.pixindex--active-highlight,
+.pixindex.pixindex--glass {
+  --pixindex-row-block: .35em;
+  --pixindex-row-inline: .7em;
+}
+
+.pixindex.pixindex--active-highlight .pixindex-link,
+.pixindex.pixindex--glass .pixindex-link {
+  display: block;
+  padding-block: var(--pixindex-row-block);
+  padding-inline: var(--pixindex-row-inline);
+  border-radius: var(--pixindex-row-radius, .55em);
+  transition: background-color var(--pixindex-duration, .3s) ease, box-shadow var(--pixindex-duration, .3s) ease;
+}
+
+:where(.pixindex--active-highlight, .pixindex--glass) :where(.pixindex-link:hover, .pixindex-link:focus-visible) {
+  background-color: var(--pixindex-hover-bg, color-mix(in srgb, var(--pixindex-text, currentColor) 7%, transparent));
+}
+
+.pixindex.pixindex--active-highlight .pixindex-link.pixindex-active {
+  background-color: var(--pixindex-active-bg, color-mix(in srgb, var(--pixindex-text, currentColor) 13%, transparent));
+  box-shadow: inset var(--pixindex-active-thickness, 3px) 0 0 var(--pixindex-active-bar, currentColor);
+}
+
+[dir="rtl"] .pixindex.pixindex--active-highlight .pixindex-link.pixindex-active {
+  box-shadow: inset calc(-1 * var(--pixindex-active-thickness, 3px)) 0 0 var(--pixindex-active-bar, currentColor);
+}
+
+/* --------------------------------------------- Collapsible sub-levels */
+
+/* Closed until opened by hand or by the current section (needs the script). */
+.pixindex--compact[data-pixindex-ready] .pixindex-item:not(.pixindex-item--open) > .pixindex-list {
+  display: none;
+}
+
+.pixindex--compact .pixindex-item--parent {
+  position: relative;
+}
+
+.pixindex--compact .pixindex-item--parent > .pixindex-link {
+  padding-inline-end: 2.6em;
+}
+
+/* Height animation driven by the script. */
+.pixindex .pixindex-list.pixindex-list--animating {
+  overflow: hidden;
+  transition: height var(--pixindex-duration, .3s) ease, opacity var(--pixindex-duration, .3s) ease;
+}
+
+/* A real button: tinted background, border, hover and focus states. */
+.pixindex-branch-toggle {
+  position: absolute;
+  /* Centred on the first line of the entry: 1lh is the line height. */
+  inset-block-start: calc(var(--pixindex-row-block, 0px) + (1lh - 1.75em) / 2);
+  inset-inline-end: .15em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.75em;
+  block-size: 1.75em;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--pixindex-toggle-border, color-mix(in srgb, currentColor 22%, transparent));
+  border-radius: var(--pixindex-toggle-radius, .5em);
+  background: var(--pixindex-toggle-bg, color-mix(in srgb, currentColor 9%, transparent));
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+.pixindex-branch-toggle:hover,
+.pixindex-branch-toggle:focus-visible {
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.pixindex-branch-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.pixindex-branch-toggle[hidden] {
+  display: none;
+}
+
+.pixindex-branch-toggle::before {
+  content: "";
+  inline-size: .42em;
+  block-size: .42em;
+  margin-block-start: -.1em;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--pixindex-duration, .3s) ease, margin var(--pixindex-duration, .3s) ease;
+}
+
+.pixindex-branch-toggle[aria-expanded="false"]::before {
+  margin-block-start: 0;
+  margin-inline-start: -.12em;
+}
+
+.pixindex-branch-toggle[aria-expanded="true"]::before {
+  transform: rotate(45deg);
+}
+
+[dir="rtl"] .pixindex-branch-toggle[aria-expanded="false"]::before {
+  transform: rotate(135deg);
+}
+
+/* ------------------------------------------------------------- Glass look */
+
+/*
+ * Translucent surface tinted with the theme text color, blurred background,
+ * thin border and soft shadow. It replaces the card background of the framework.
+ */
+.pixindex.pixindex--glass {
+  position: relative;
+  padding: var(--pixindex-padding, 1.1rem 1.15rem);
+  border: 1px solid var(--pixindex-glass-border, color-mix(in srgb, currentColor 14%, transparent));
+  border-radius: var(--pixindex-radius, 1.1rem);
+  background: var(--pixindex-glass-bg, linear-gradient(135deg, color-mix(in srgb, currentColor 9%, transparent), color-mix(in srgb, currentColor 3%, transparent)));
+  box-shadow: var(--pixindex-glass-shadow, inset 0 1px 0 color-mix(in srgb, currentColor 12%, transparent), 0 18px 40px -18px rgb(0 0 0 / .45));
+  -webkit-backdrop-filter: blur(var(--pixindex-glass-blur, 16px)) saturate(160%);
+  backdrop-filter: blur(var(--pixindex-glass-blur, 16px)) saturate(160%);
+}
+
+/* Card display: the framework paddings become the glass padding. */
+.pixindex.pixindex--glass.card,
+.pixindex.pixindex--glass.uk-card {
+  padding: 0;
+}
+
+.pixindex.pixindex--glass > .pixindex-title,
+.pixindex.pixindex--glass > .pixindex-details > .pixindex-title {
+  margin-block: 0 .75em;
+}
+
+.pixindex.pixindex--glass > .card-header,
+.pixindex.pixindex--glass > .uk-card-header {
+  margin: 0;
+  padding: var(--pixindex-padding, 1.1rem 1.15rem);
+  padding-block-end: .85rem;
+  border: 0;
+  border-block-end: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  background: transparent;
+}
+
+.pixindex.pixindex--glass > .card-body,
+.pixindex.pixindex--glass > .uk-card-body {
+  padding: .75rem .65rem .9rem;
+}
+
+/* Nested levels hang from a thin guide line. */
+.pixindex.pixindex--glass .pixindex-list .pixindex-list {
+  margin-inline-start: .85em;
+  border-inline-start: 1px solid color-mix(in srgb, var(--pixindex-text, currentColor) 14%, transparent);
+}
+
+/* Lists without markers only need a small gap after the guide line. */
+.pixindex.pixindex--glass .pixindex-list .pixindex-list--none {
+  padding-inline-start: .45em;
+}
+
+/* Rows already show hover and current states: no underline in the glass look. */
+.pixindex.pixindex--glass .pixindex-link {
+  text-decoration: none;
+}
+
+/* Without blur support a slightly stronger tint keeps the text readable. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .pixindex.pixindex--glass {
+    background: var(--pixindex-glass-bg, color-mix(in srgb, currentColor 10%, transparent));
+  }
+}
+
+/* ------------------------------------------------------------ Collapsible */
+
+.pixindex-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5em;
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.pixindex-toggle::after,
+.pixindex-details > summary::after {
+  content: "";
+  flex: none;
+  inline-size: .5em;
+  block-size: .5em;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform .2s ease;
+}
+
+.pixindex-toggle[aria-expanded="true"]::after,
+.pixindex-details[open] > summary::after {
+  transform: rotate(-135deg);
+}
+
+.pixindex-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5em;
+  list-style: none;
+  cursor: pointer;
+}
+
+.pixindex-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* ------------------------------------------------- Framework free look */
+
+:where(.pixindex--none.pixindex--card:not(.pixindex--glass)) {
+  padding: var(--pixindex-padding, 1rem 1.25rem);
+  border: 1px solid var(--pixindex-border-color, color-mix(in srgb, currentColor 20%, transparent));
+  border-radius: var(--pixindex-radius, .5rem);
+}
+
+:where(.pixindex--none) :where(.pixindex-title) {
+  margin: 0 0 .5em;
+  font-size: 1.1em;
+  font-weight: var(--pixindex-active-weight, 600);
+}
+
+:where(.pixindex--none) :where(.pixindex-details:not([open]) > .pixindex-title) {
+  margin-block-end: 0;
+}
+
+:where(.pixindex--none.pixindex--nav) :where(.pixindex-link) {
+  display: block;
+  padding-block: .15em;
+  padding-inline: .75em 0;
+  border-inline-start: 2px solid transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+:where(.pixindex--none.pixindex--nav) :where(.pixindex-link.pixindex-active) {
+  border-inline-start-color: currentColor;
+}
+
+/* ----------------------------------------------------- Height and sticky */
+
+.pixindex--scroll .pixindex-body {
+  max-block-size: var(--pixindex-max-height);
+  overflow-y: auto;
+}
+
+/* The class is set by the script on the closest element that can stick, above the breakpoint. */
+.pixindex-sticky-host {
+  position: sticky;
+  top: var(--pixindex-sticky-top, 20px);
+  z-index: 2;
+}
+
+.pixindex-sticky-host .pixindex:not(.pixindex--scroll) .pixindex-body {
+  max-block-size: calc(100vh - var(--pixindex-sticky-top, 20px) - 6rem);
+  overflow-y: auto;
+}
+
+/* ------------------------------------------------ Mobile button and panel */
+
+.pixindex-inline-hidden {
+  display: none !important;
+}
+
+.pixindex-fab {
+  position: fixed;
+  inset-block-end: var(--pixindex-fab-offset, 1rem);
+  z-index: 1030;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pixindex-fab--end {
+  inset-inline-end: var(--pixindex-fab-offset, 1rem);
+}
+
+.pixindex-fab--start {
+  inset-inline-start: var(--pixindex-fab-offset, 1rem);
+}
+
+.pixindex-fab[hidden] {
+  display: none !important;
+}
+
+:where(.pixindex-fab--plain) {
+  inline-size: 3rem;
+  block-size: 3rem;
+  padding: 0;
+  border: 1px solid var(--pixindex-border-color, color-mix(in srgb, currentColor 20%, transparent));
+  border-radius: 50%;
+  background: var(--pixindex-panel-bg, Canvas);
+  color: var(--pixindex-panel-color, CanvasText);
+  cursor: pointer;
+}
+
+:where(.pixindex-fab-icon) {
+  display: block;
+}
+
+/* Native dialog of the framework free mode (the frameworks use their own offcanvas). */
+.pixindex-dialog {
+  position: fixed;
+  inset-block: 0;
+  inline-size: var(--pixindex-panel-width, min(22rem, 85vw));
+  max-inline-size: 100vw;
+  block-size: 100%;
+  max-block-size: 100%;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.pixindex-dialog--end {
+  inset-inline: auto 0;
+}
+
+.pixindex-dialog--start {
+  inset-inline: 0 auto;
+}
+
+:where(.pixindex-dialog) {
+  padding: var(--pixindex-padding, 1rem 1.25rem);
+  border: 0;
+  background: var(--pixindex-panel-bg, Canvas);
+  color: var(--pixindex-panel-color, CanvasText);
+}
+
+:where(.pixindex-dialog)::backdrop {
+  background: var(--pixindex-backdrop, rgb(0 0 0 / .4));
+}
+
+.pixindex-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+:where(.pixindex-panel-title) {
+  margin: 0 0 .75em;
+  font-weight: var(--pixindex-active-weight, 600);
+}
+
+:where(.pixindex-dialog-close) {
+  padding: 0 .25em;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 1.5em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------- Content helpers */
+
+:where(.pixindex-back) {
+  margin: 1.5em 0 .5em;
+  font-size: .875em;
+  text-align: end;
+}
+
+/* ------------------------------------------------------------- Media */
+
+@media (prefers-reduced-motion: reduce) {
+  .pixindex-toggle::after,
+  .pixindex-details > summary::after,
+  .pixindex-branch-toggle,
+  .pixindex-branch-toggle::before,
+  .pixindex .pixindex-link,
+  .pixindex .pixindex-list.pixindex-list--animating {
+    transition: none;
+  }
+}
+
+@media print {
+  .pixindex-fab,
+  .pixindex--panel,
+  .pixindex-back,
+  .pixindex-branch-toggle,
+  .pixindex-toggle::after {
+    display: none !important;
+  }
+
+  .pixindex .pixindex-list {
+    display: block !important;
+  }
+
+  .pixindex.pixindex--glass {
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .pixindex-sticky-host {
+    position: static;
+  }
+}

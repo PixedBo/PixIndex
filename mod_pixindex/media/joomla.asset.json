@@ -1,0 +1,22 @@
+{
+  "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+  "name": "mod_pixindex",
+  "version": "1.0.0",
+  "description": "PixIndex table of contents module",
+  "license": "GPL-2.0-or-later",
+  "assets": [
+    {
+      "name": "mod_pixindex.pixindex",
+      "type": "style",
+      "uri": "mod_pixindex/pixindex.css"
+    },
+    {
+      "name": "mod_pixindex.pixindex",
+      "type": "script",
+      "uri": "mod_pixindex/pixindex.js",
+      "attributes": {
+        "defer": true
+      }
+    }
+  ]
+}
